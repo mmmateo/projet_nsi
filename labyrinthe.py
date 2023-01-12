@@ -29,7 +29,6 @@ class Case:
         self.S=False
         self.E=False
 
-
 class Labyrinthe:
     def __init__(self, p, q):
         self.nb_lignes=p
@@ -86,7 +85,7 @@ class Labyrinthe:
                    self.tab[x[0]][x[1]+1].O=True
                    pile.empiler(x)
                    pile.empiler((x[0],x[1]+1))
-##pas bon
+
     def solution(self):
         pile=Pile()
         dejavu=[[False for j in range(self.nb_colonnes)] for i in range(self.nb_lignes)]
@@ -125,7 +124,7 @@ class Labyrinthe:
                     pyxel.rect((j)*5,i*5,1,6,0)
         
         pyxel.rect(0,1,1,4,0)
-#ca non plus        
+      
     def draw_solution(self):
         for i in range(len(self.soluce)):
             if i!=len(self.soluce)-1:
@@ -141,24 +140,37 @@ class Labyrinthe:
                     
 class Personnage:
     def __init__(self):
-        self.x=1
-        self.y=2
+        self.x=90
+        self.y=180
+        self.facing=0
         
     def draw(self):
-        pyxel.rect(self.x,self.y,1,1,14)
-        
+        pyxel.rect(self.x//90,self.y//90,1,1,14)
+ ### colisions a coriger (c'est chaud)       
     def update(self):
-        if pyxel.btn(100) and pyxel.pget(self.x+1,self.y)!=0:
-            self.x+=1
-        if pyxel.btn(113) and pyxel.pget(self.x-1,self.y)!=0:
-            self.x-=1
-        if pyxel.btn(115) and pyxel.pget(self.x,self.y+1)!=0:
-            self.y+=1
-        if pyxel.btn(122) and pyxel.pget(self.x,self.y-1)!=0:
-            self.y-=1
-            
+        if pyxel.btn(100):
+            self.facing-=5
+        if pyxel.btn(113):
+            self.facing+=5
+        if pyxel.btn(122) and pyxel.pget(self.x//90,self.y//90):
+            a=self.x
+            if pyxel.pget(self.x//90+int(pyxel.cos(self.facing)),self.y//90)!=0:
+                self.x+=int(pyxel.cos(self.facing)*90)
+            elif self.x//90+1>self.x//90+int(pyxel.cos(self.facing)*90)//90:
+                self.x+=int(pyxel.cos(self.facing)*90)
+            else:
+                self.x=self.x//90*90+89
+                
+            if pyxel.pget(a//90,self.y//90+int(pyxel.sin(self.facing)))!=0:
+                self.y+=int(pyxel.sin(self.facing)*90)
+            elif self.y//90+1>self.y//90+int(pyxel.sin(self.facing)*90)//90:
+                self.y+=int(pyxel.sin(self.facing)*90)
+            else:
+                self.y=self.y//90*90+89  
+        print (self.facing,self.x,self.y)
+        
     def fini(self):
-        if pyxel.pget(self.x,self.y)==11:
+        if pyxel.pget(self.x//90,self.y//90)==11:
             return True
         
 class App:
