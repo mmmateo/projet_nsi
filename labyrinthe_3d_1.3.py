@@ -41,11 +41,13 @@ class Labyrinthe:
         while a!=q**2//5:
             b=(random.randint(1,p-2),random.randint(1,q-2))
             if self.tab[b[0]][b[1]].contenu==None:
-                c=random.randint(1,3)
+                c=random.randint(1,4)
                 if c==1:
                     self.tab[b[0]][b[1]].contenu=9
                 elif c==2:
                     self.tab[b[0]][b[1]].contenu=10
+                elif c==3:
+                    self.tab[b[0]][b[1]].contenu=8
                 else:
                     self.tab[b[0]][b[1]].contenu=14
                 a+=1
@@ -189,6 +191,8 @@ class Labyrinthe:
                                 bonus.append((distance,13,i))
                             elif self.pyxels[perso.y//90+int(pyxel.sin(balayage)*distance)][perso.x//90+int(pyxel.cos(balayage)*distance)]==14:
                                 bonus.append((distance,14,i))
+                            elif self.pyxels[perso.y//90+int(pyxel.sin(balayage)*distance)][perso.x//90+int(pyxel.cos(balayage)*distance)]==8:
+                                bonus.append((distance,8,i))
                         distance+=1
                     if self.pyxels[perso.y//90+int(pyxel.sin(balayage)*distance)][perso.x//90+int(pyxel.cos(balayage)*distance)]==2:
                         fin=True
@@ -533,16 +537,24 @@ class Personnage:
     def draw(self):
         pyxel.rect(self.x//90,self.y//90,1,1,14)
     
-    def draw_overlay(self):
-        affiche_image([],12,14)
-        pyxel.rect(43,14,90,30,4)
+    def draw_overlay(self,vitesse_mob,plume,ampoule,oeuil,mob,lenteur):
+        affiche_image(plume,12,14,2)
+        pyxel.rect(43,14,90,30,12)
+        pyxel.rect(45,16,86,26,8)
         pyxel.rect(45,16,int(86*(self.speed-25)/42),26,11)
-        affiche_image([],140,14)
-        pyxel.rect(171,14,90,30,4)
+        affiche_image(ampoule,140,14,2)
+        pyxel.rect(171,14,90,30,12)
+        pyxel.rect(173,16,86,26,8)
         pyxel.rect(173,16,int(86*(self.lampe+15)/20),26,11)
-        affiche_image([],268,14)
-        pyxel.rect(299,14,90,30,4)
+        affiche_image(oeuil,268,14,2)
+        pyxel.rect(299,14,90,30,12)
+        pyxel.rect(301,16,86,26,8)
         pyxel.rect(301,16,int(86*(self.discretion)/40),26,11)
+        affiche_image(mob,396,14,2)
+        affiche_image(lenteur,410,28)
+        pyxel.rect(427,14,90,30,12)
+        pyxel.rect(429,16,86,26,8)
+        pyxel.rect(429,16,int(86*(vitesse_mob-2.5)/2.8),26,11)
     def update(self,pyxels):
         if self.hochement=='+':
                 if self.tete<1.6:
@@ -662,14 +674,32 @@ class App:
         self.visu='3d'
         self.rendu='160'
         self.nb_mob=1
+        self.vitesse_mob=2.5
         self.danger=0
+        self.instant_lance=0
         self.images={}
+        self.images['plume']=[[-1]*15,[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,13,-1,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,13,13,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,13,4,7,-1,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,13,7,4,7,13,-1],[-1,-1,-1,-1,-1,-1,-1,-1,-1,13,4,13,13,-1,-1],[-1,-1,-1,-1,-1,-1,-1,13,7,13,4,13,-1,-1,-1],[-1,-1,-1,-1,-1,13,-1,7,13,4,13,7,13,-1,-1],[-1,-1,-1,-1,13,7,13,13,4,13,7,13,-1,-1,-1],[-1,-1,-1,-1,7,7,13,4,13,13,-1,-1,-1,-1,-1],[-1,-1,13,13,7,13,4,7,7,7,13,-1,-1,-1,-1],[-1,-1,-1,13,4,4,13,7,13,-1,-1,-1,-1,-1,-1],[-1,4,4,4,13,13,7,13,-1,-1,-1,-1,-1,-1,-1],[-1,-1,-1,-1,13,13,-1,-1,-1,-1,-1,-1,-1,-1,-1],[-1]*15]
+        self.images['oeuil']=[[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],[-1, -1, -1, -1, -1, -1, 0, 0, 0, -1, -1, -1, -1, -1, -1],[-1, -1, -1, -1, 0, 0, 11, 11,11, 0, 0, -1, -1, -1, -1],[-1, -1, 0, 0, 7, 11, 11, 0, 11, 11, 7, 0, 0, -1, -1],[-1, 0, 13, 7, 11, 11, 0, 0, 0, 11, 11, 7, 13, 0, -1],[0, 7, 7, 7, 11, 11, 0, 0, 0, 11, 11, 7, 7, 7, 0],[0, 7, 7, 7, 11, 11, 0, 0, 0, 11, 11, 7, 7, 7, 0],[-1, 0, 13, 7, 11, 11, 0, 0, 0, 11, 11, 7, 13, 0, -1],[-1, -1, 0, 0, 7, 11, 11, 0, 11, 11, 7, 0, 0, -1, -1],[-1, -1, -1, -1, 0, 0, 11, 11,11, 0, 0, -1, -1, -1, -1],[-1, -1, -1, -1, -1, -1, 0, 0, 0, -1, -1, -1, -1, -1, -1],[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]]
+        self.images['ampoule']=[[ -1, -1, -1, -1, -1, 0, 0, 0, 0, -1, -1, -1, -1, -1],[ -1, -1, -1, 0, 0, 10, 10, 10, 10, 0, 0, -1, -1, -1],[ -1, -1, 0, 10, 10, 10, 10, 10, 10, 10, 10, 0, -1, -1],[ -1, -1, 0, 10, 10, 10, 10, 10, 10, 10, 10, 0, -1, -1],[ -1, 0, 10, 10, 10, 0, 10, 10, 0, 10, 10, 10, 0, -1],[ -1, 0, 10, 10, 0, 10, 0, 0, 10, 0, 10, 10, 0, -1],[ -1, 0, 10, 10, 0, 10, 10, 10, 10, 0, 10, 10, 0, -1],[ -1, 0, 10, 10, 10, 0, 10, 10, 0, 10, 10, 10, 0, -1],[ -1, -1, 0, 10, 10, 0, 10, 10, 0, 10, 10, 0, -1, -1],[ -1, -1, 0, 10, 10, 0, 10, 10, 0, 10, 10, 0, -1, -1],[ -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1],[ -1, -1, -1, 0, 13, 13, 13, 13, 13, 13, 0, -1, -1, -1],[ -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1],[ -1, -1, -1, -1, 0, 13, 13, 13, 13, 0, -1, -1, -1, -1],[ -1, -1, -1, -1, -1, 0, 0, 0, 0, -1, -1, -1, -1, -1]]
+        self.images['mob']=[[-1, -1, -1, -1, -1, -1, 13, 13, 13, -1, -1, -1, -1, -1, -1],[-1, -1, -1, -1, -1, 13, 13, 13, 13, 13, -1, -1, -1, -1, -1],[-1, -1, -1, -1, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1, -1],[-1, -1, -1, -1, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1, -1],[-1, -1, -1, 13, 13, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1],[-1, -1, -1, 13, 13, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1],[-1, -1, -1, 13, 13, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1],[-1, -1, -1, 13, 13, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1],[-1, -1, -1, 13, 13, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1],[-1, -1, -1, 13, 13, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1],[-1, -1, -1, 13, 13, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1],[-1, -1, -1, -1, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1, -1],[-1, -1, -1, -1, 13, 13, 13, 13, 13, 13, 13, -1, -1, -1, -1],[-1, -1, -1, -1, -1, 13, 13, 13, 13, 13, -1, -1, -1, -1, -1],[-1, -1, -1, -1, -1, -1, 13, 13, 13, -1, -1, -1, -1, -1, -1]]
+        self.images['lenteur']=[[-1, -1, -1, -1, -1, 6, 6, 6, 6, 6, -1, -1, -1, -1, -1, -1],[-1, -1, -1, -1, 6, 0, 0, 0, 0, 0, 6, -1, -1, -1, -1, -1],[-1, -1, -1, 6, 0, 0, 0, 0, 0, 0, 0, 6, -1, -1, -1, -1],[-1, -1, 6, 0, 0, 7, 7, 0, 0, 0, 0, 0, 6, -1, -1, -1],[-1, -1, 6, 0, 0, 7, 7, 0, 0, 0, 0, 0, 6, -1, -1, -1],[-1, -1, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, -1, -1, -1],[-1, -1, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, -1, -1, -1],[-1, -1, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, -1, -1, -1],[-1, -1, -1, 6, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, -1, -1],[-1, -1, -1, -1, 6, 0, 0, 0, 0, 0, 6, -1, 6, 6, -1, -1],[-1, -1, -1, -1, -1, 6, 6, 6, 6, 6, 0, 6, 0, 0, 6, 6],[-1, 6, 6, 6, -1, -1, -1, -1, -1, -1, 6, 6, 6, 6, -1, 6],[6, 0, 0, 0, 6, -1, -1, -1, -1, -1, -1, -1, -1, 6, 6, 6],[6, 0, 0, 0, 6, -1, -1, -1, -1, -1, -1, -1, -1, 6, 6, -1],[6, 0, 0, 0, 6, -1, 6, 6, -1, 6, 6, -1, 6, 6, -1, -1],[-1, 6, 6, 6, 6, -1, 6, 6, -1, 6, 6, 6, 6, 6, -1, -1]]
+        self.images[1]=[[-1, 10, -1], [10, 10, -1], [-1, 10, -1], [-1, 10, -1], [-1, 10, -1]]
+        self.images[2]=[[10, 10, -1], [-1, -1, 10], [-1, 10, -1], [10, -1, -1], [10, 10, 10]]
+        self.images[3]=[[10, 10, -1], [-1, -1, 10], [-1, 10, -1], [-1, -1, 10], [10, 10, -1]]
+        self.images[4]=[[10, -1, 10], [10, -1, 10], [10, 10, 10], [-1, -1, 10], [-1, -1, 10]]
+        self.images[5]=[[10, 10, 10], [10, -1, -1], [10, 10, -1], [-1, -1, 10], [10, 10, -1]]
+        self.images[6]=[[-1, 10, 10], [10, -1, -1], [10, 10, 10], [10, -1, 10], [10, 10, 10]]
+        self.images[7]=[[10, 10, 10], [-1, -1, 10], [-1, 10, -1], [10, -1, -1], [10, -1, -1]]
+        self.images[8]=[[10, 10, 10], [10, -1, 10], [10, 10, 10], [10, -1, 10], [10, 10, 10]]
+        self.images[9]=[[10, 10, 10], [10, -1, 10], [10, 10, 10], [-1, -1, 10], [10, 10, -1]]
+        self.images[0]=[[-1, 10, 10], [10, -1, 10], [10, -1, 10], [10, -1, 10], [10, 10, -1]]
+        self.images[':']=[[-1, -1, -1], [-1, 10, -1], [-1, -1, -1], [-1, 10, -1], [-1, -1, -1]]
         self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         pyxel.init(640,640,'toujours aucune idée',30,pyxel.KEY_ESCAPE)
         pyxel.run(self.update, self.draw)
         
     def update(self):
-        if pyxel.frame_count%3==0:
+        if pyxel.frame_count%int(self.vitesse_mob)==0:
             for i in self.liste_mob:
                 if i.update(self.perso,self.labyrinthe.pyxels):
                     self.danger=4
@@ -694,46 +724,57 @@ class App:
         if self.perso.fini(self.labyrinthe.pyxels):
             self.labyrinthe=Labyrinthe(5,5)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if pyxel.btn(ord('1')):
             self.labyrinthe=Labyrinthe(1,1)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(1,self.labyrinthe.nb_lignes)*15-1,random.randint(1,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if pyxel.btn(ord('2')):
             self.labyrinthe=Labyrinthe(2,2)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if pyxel.btn(ord('3')):
             self.labyrinthe=Labyrinthe(3,3)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if pyxel.btn(ord('4')):
             self.labyrinthe=Labyrinthe(4,4)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if pyxel.btn(ord('5')):
             self.labyrinthe=Labyrinthe(5,5)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if pyxel.btn(ord('6')):
             self.labyrinthe=Labyrinthe(6,6)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if pyxel.btn(ord('7')):
             self.labyrinthe=Labyrinthe(7,7)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if pyxel.btn(ord('8')):
             self.labyrinthe=Labyrinthe(8,8)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if pyxel.btn(ord('9')):
             self.labyrinthe=Labyrinthe(9,9)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if pyxel.btn(ord('0')):
             self.labyrinthe=Labyrinthe(100,100)
             self.perso=Personnage()
+            self.vitesse_mob=2.5
             self.liste_mob=[Mob(random.randint(2,self.labyrinthe.nb_lignes)*15-1,random.randint(2,self.labyrinthe.nb_colonnes)*15-1,self.labyrinthe.pyxels) for i in range(1,self.nb_mob+1)]
         if self.labyrinthe.tab[self.perso.y//90//15][self.perso.x//90//15].contenu==9:
             self.labyrinthe.tab[self.perso.y//90//15][self.perso.x//90//15].contenu=None
@@ -750,6 +791,11 @@ class App:
             self.labyrinthe.load_pyxels()
             if self.perso.discretion<40:
                 self.perso.discretion+=5
+        if self.labyrinthe.tab[self.perso.y//90//15][self.perso.x//90//15].contenu==8:
+            self.labyrinthe.tab[self.perso.y//90//15][self.perso.x//90//15].contenu=None
+            self.labyrinthe.load_pyxels()
+            if self.vitesse_mob<5.3:
+                self.vitesse_mob+=0.7
         for i in self.liste_mob:        
             if abs(i.x-self.perso.x//90)<=1 and abs(i.y-self.perso.y//90)<=1:
                 self.labyrinthe=Labyrinthe(5,5)
@@ -762,7 +808,12 @@ class App:
         else:
             pyxel.cls(7)
         self.labyrinthe.draw(self.perso,self.visu,self.perso.tete,self.perso.hauteur,self.perso.lampe,self.rendu)
-        self.perso.draw_overlay()
+        self.perso.draw_overlay(self.vitesse_mob,self.images['plume'],self.images['ampoule'],self.images['oeuil'],self.images['mob'],self.images['lenteur'])
+        affiche_image(self.images[(pyxel.frame_count-self.instant_lance)//18000%10],530,15,5,pyxel.frame_count//30%15+1)
+        affiche_image(self.images[(pyxel.frame_count-self.instant_lance)//1800%10],550,15,5,pyxel.frame_count//30%15+1)
+        affiche_image(self.images[':'],570,15,5,pyxel.frame_count//30%15+1)
+        affiche_image(self.images[(pyxel.frame_count-self.instant_lance)//300%6],590,15,5,pyxel.frame_count//30%15+1)
+        affiche_image(self.images[(pyxel.frame_count-self.instant_lance)//30%10],610,15,5,pyxel.frame_count//30%15+1)
         if self.danger>0:
             pyxel.rect(0,0,640,7,8)
             pyxel.rect(0,0,7,640,8)
@@ -774,9 +825,12 @@ class App:
                 pyxel.rect(7,629,626,4,7)
                 pyxel.rect(629,7,4,626,7)
 
-def affiche_image(tab,x,y,facteur=1):
+def affiche_image(tab,x,y,facteur=1,couleur=-1):
     for i in range(0,len(tab)*facteur,facteur):
         for j in range(0,len(tab[i//facteur])*facteur,facteur):
-            pyxel.rect(x+j,y+i,facteur,facteur,tab[i//facteur][j//facteur])
-
+            if tab[i//facteur][j//facteur]!=-1:
+                if couleur==-1:
+                    pyxel.rect(x+j,y+i,facteur,facteur,tab[i//facteur][j//facteur])
+                else:
+                    pyxel.rect(x+j,y+i,facteur,facteur,couleur)
 App()
